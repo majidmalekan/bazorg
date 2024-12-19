@@ -10,10 +10,10 @@ use Psr\Container\NotFoundExceptionInterface;
 trait CacheRepositoryTrait
 {
     /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @param string $key
+     * @param string $id
      */
-    public function clearCache($key, $id = ''): void
+    public function clearCache(string $key,string $id = ''): void
     {
         if ($id != '') {
             Cache::forget($this->getTableName() . '_' . $key . '_' . (auth('sanctum')->check() ? request()->user('sanctum')->id . $id : $id));
@@ -31,7 +31,11 @@ trait CacheRepositoryTrait
         $this->clearCacheGetAll($key);
     }
 
-    public function clearCacheGetAll($key): void
+    /**
+     * @param string $key
+     * @return void
+     */
+    public function clearCacheGetAll(string $key): void
     {
         Cache::forget($this->getTableName() . '_' . $key);
         if (request()->user()) {
@@ -39,22 +43,11 @@ trait CacheRepositoryTrait
         }
     }
 
+    /**
+     * @return void
+     */
     public function clearAllCache(): void
     {
         Cache::clear();
-    }
-
-    protected function clearCacheByPattern($pattern)
-    {
-        $redis = Redis::connection();
-        $cursor = 0;
-        do {
-            // Scan for keys matching the pattern
-            list($cursor, $keys) = $redis->scan($cursor, ['MATCH' => $pattern, 'COUNT' => 100]);
-            // Delete each key that matches the pattern
-            foreach ($keys as $key) {
-                $redis->del($key);
-            }
-        } while ($cursor != 0);
     }
 }

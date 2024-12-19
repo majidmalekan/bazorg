@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Resources\User\UserResource;
 use App\Service\UserService;
 use App\Traits\CrudForPersonalAccessTokenTrait;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
@@ -74,14 +76,14 @@ class AuthController extends Controller
 
     /**
      * Display the specified resource.
-     * @param string $id
+     * @param Request $request
      * @return JsonResponse
      * @throws CommonException
      */
-    public function me(string $id): JsonResponse
+    public function me(Request $request): JsonResponse
     {
         try {
-            return success('', $this->service->find($id));
+            return success('',new UserResource($this->service->find($request->user()->id)));
         } catch (\Exception $exception) {
             throw new CommonException($exception->getMessage());
         }
@@ -98,7 +100,7 @@ class AuthController extends Controller
     {
         try {
             $inputs = $request->validated();
-            return success('', $this->service->updateAndFetch($id, $inputs));
+            return success('',new UserResource($this->service->updateAndFetch($id, $inputs)));
         } catch (\Exception $exception) {
             throw new CommonException($exception->getMessage());
         }

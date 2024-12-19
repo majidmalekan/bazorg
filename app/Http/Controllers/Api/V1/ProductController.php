@@ -6,6 +6,8 @@ use App\Exceptions\CommonException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
+use App\Http\Resources\Product\ProductCollection;
+use App\Http\Resources\Product\ProductResource;
 use App\Service\ProductService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,8 +36,8 @@ class ProductController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            return success('', $this->service->index($request));
-        }catch (\Exception $exception){
+            return success('', new ProductCollection($this->service->index($request)));
+        } catch (\Exception $exception) {
             throw new CommonException($exception->getMessage());
         }
     }
@@ -66,7 +68,7 @@ class ProductController extends Controller
     public function show(string $id): JsonResponse
     {
         try {
-            return success('', $this->service->find($id));
+            return success('', new ProductResource($this->service->find($id)));
         } catch (\Exception $exception) {
             throw new CommonException($exception->getMessage());
         }
@@ -83,7 +85,7 @@ class ProductController extends Controller
     {
         try {
             $inputs = $request->validated();
-            return success('', $this->service->updateAndFetch($id, $inputs));
+            return success('', new ProductResource($this->service->updateAndFetch($id, $inputs)));
         } catch (\Exception $exception) {
             throw new CommonException($exception->getMessage());
         }
