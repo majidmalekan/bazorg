@@ -25,7 +25,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BaseEloquentRepositoryInterface::class, BaseRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(CacheContext::class, function ($app) {
-            // Choose strategy based on config/env
             $strategy = match (config('cache.default')) {
                 'redis' => new RedisCache(),
                 'database' => new DatabaseCache(),

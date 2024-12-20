@@ -6,7 +6,7 @@ use App\Contracts\CacheStrategyInterface;
 
 class CacheContext
 {
-    private CacheStrategyInterface $strategy;
+    public CacheStrategyInterface $strategy;
 
     public function __construct(CacheStrategyInterface $strategy)
     {

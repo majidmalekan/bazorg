@@ -9,7 +9,7 @@ This project demonstrates how to implement a **Repository Pattern** with a **Rea
 - **Repository Pattern**: Abstracts data access logic, ensuring clean architecture.
 - **Read-Through Cache Strategy**: Retrieves data from cache when available, falls back to the database otherwise, and caches the result for future use.
 - **Dynamic Cache Drivers**: Supports switching between Redis, File, and Database caching at runtime.
-- **Unit and Feature Tests**: Comprehensive test coverage to validate the caching behavior and repository logic.
+- **Feature Tests**: Comprehensive test coverage to validate the caching behavior and repository logic.
 
 ---
 
@@ -20,7 +20,7 @@ This project demonstrates how to implement a **Repository Pattern** with a **Rea
    cd <project-directory>
    ```
 
-2. Run Docker on your os:
+2. Run Docker on your os
 
 2. Install Vendor:
    ```bash
@@ -30,6 +30,8 @@ This project demonstrates how to implement a **Repository Pattern** with a **Rea
 3. Start the development environment:
    ```bash
    ./vendor/bin/sail up -d
+   or
+   ./vendor/bin/sail up 
    ```
 
 4. Configure the environment:
@@ -44,7 +46,6 @@ This project demonstrates how to implement a **Repository Pattern** with a **Rea
    ```bash
    ./vendor/bin/sail artisan migrate
    ```
-
 6. Seed the database (optional):
    ```bash
    ./vendor/bin/sail artisan db:seed
@@ -57,14 +58,14 @@ This project demonstrates how to implement a **Repository Pattern** with a **Rea
 
 The project uses a repository structure to abstract data access logic. Here's how to interact with the repositories:
 
-- **Fetching all records:**
+- **Fetching Paginate records:**
   ```php
-  $users = $userRepository->all();
+  $products = $productRepository->index();
   ```
 
 - **Fetching a specific record:**
   ```php
-  $user = $userRepository->find($id);
+  $product = $productRepository->find($id);
   ```
 
 ### Dynamic Cache Drivers
@@ -80,37 +81,34 @@ $data = $cacheContext->get('key');
 
 You can also switch the cache driver via an API endpoint:
 
-#### Endpoint:
+#### Endpoints:
 ```http
 POST /change-cache-driver
+GET api/v1/product
+POST api/v1/product
+GET api/v1/product/{id}
+PUT api/v1/product/{id}
+DELETE api/v1/admin/product/{id}
+POST api/v1/register
+POST api/v1/login
+GET api/v1/me
+PUT api/v1/user/{id}
 ```
-
-#### Request Body:
-```json
-{
-  "driver": "redis" // or "file", "database"
-}
-```
-
 ### Testing the System
 
-#### Run Unit and Feature Tests
+#### Run Feature Tests
 The tests ensure proper functionality of the caching system and repository logic.
-
 ```bash
 ./vendor/bin/sail artisan test
 ```
 
 #### Test Coverage:
-- **Unit Tests**: Validate repository behavior with mocked caching.
 - **Feature Tests**: Validate the full flow with real cache interaction.
-
 ---
 
 ## Folder Structure
 
 ### Key Directories and Files:
-
 - `app/Contracts/CacheStrategy.php`: Defines the interface for cache strategies.
 - `app/Services/Cache`: Contains the implementations for Redis, File, and Database caching.
 - `app/Services/Cache/CacheContext.php`: Manages dynamic cache driver switching.
@@ -122,17 +120,20 @@ The tests ensure proper functionality of the caching system and repository logic
 
 ### Adding a New Cache Driver
 To add a new caching strategy:
-
 1. Create a new class implementing `CacheStrategy`.
 2. Add the driver in the `CacheContext`'s `useDriver` method.
 
 ### Adjusting Cache Expiry
 Modify the TTL (time-to-live) in the `remember` calls within the repository methods:
 ```php
-$cacheKey = $this->getCacheKey('all');
-return $this->cache->remember($cacheKey, now()->addMinutes(15), function () {
-    return $this->model->all();
-});
+   return $this->cache->remember($this->getTableName() . '_find_' . (auth('sanctum')->check() ? request()->user('sanctum')->id . $id : $id),
+            (auth('sanctum')->check() ? env('CACHE_EXPIRE_TIME') : env('CACHE_EXPIRE_GENERAL_TIME')),
+            function () use ($id) {
+                return $this->model
+                    ->query()
+                    ->where('id', $id)
+                    ->firstOrFail();
+            });;
 ```
 
 ---

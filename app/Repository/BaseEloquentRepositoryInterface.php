@@ -20,49 +20,37 @@ interface BaseEloquentRepositoryInterface
     /**
      * @param int $modelId
      * @param array $attributes
-     * @param array|null $whereAttributes
      * @return bool
      */
-    public function update(int $modelId, array $attributes,array $whereAttributes=null): bool;
+    public function update(int $modelId, array $attributes): bool;
 
     /**
      * @param int $id
-     * @param array|null $whereAttributes
      * @return Model|null
      * @throws ModelNotFoundException
      */
-    public function find(int $id,array $whereAttributes=null): ?Model;
+    public function find(int $id): ?Model;
 
 
     /**
      * @param int $id
-     * @param array|null $whereAttributes
      * @return mixed
      */
-    public function delete(int $id,array $whereAttributes=null): mixed;
+    public function delete(int $id): mixed;
 
     /**
      * @param Request $request
      * @param int $perPage
-     * @param array|null $whereAttributes
      * @return LengthAwarePaginator
      */
-    public function index(Request $request, int $perPage ,array $whereAttributes=null): LengthAwarePaginator;
+    public function index(Request $request, int $perPage): LengthAwarePaginator;
 
     /**
      * @param int $id
      * @param array $attributes
-     * @param array|null $whereAttributes
      * @return Model|null
      */
-    public function updateAndFetch(int $id, array $attributes,array $whereAttributes=null): ?Model;
-
-    /**
-     * @param string|int|null $queryParam
-     * @param array|null $whereAttributes
-     * @return array|Collection
-     */
-    public function getAll(string|int $queryParam = null,array $whereAttributes=null): array|Collection;
+    public function updateAndFetch(int $id, array $attributes): ?Model;
 
 
 }

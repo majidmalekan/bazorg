@@ -6,16 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 trait TableInformationTrait
 {
-    /**
-     * @return array
-     */
-    protected function getColumnsOfTable(): array
-    {
-        $table = $this->getTableName();
-        return Schema::getColumnListing($table);
-    }
 
-    protected function getTableName(): string
+    public function getTableName(): string
     {
         return $this->model->getTable();
     }
