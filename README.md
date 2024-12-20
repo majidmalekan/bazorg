@@ -92,9 +92,9 @@ You can also switch the cache driver via an API endpoint:
 ```http
 POST /change-cache-driver
 GET api/v1/product
-POST api/v1/product
+POST api/v1/admin/product
 GET api/v1/product/{id}
-PUT api/v1/product/{id}
+PUT api/v1/admin/product/{id}
 DELETE api/v1/admin/product/{id}
 POST api/v1/register
 POST api/v1/login
