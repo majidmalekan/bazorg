@@ -1,8 +1,7 @@
 openapi: 3.0.0
 info:
-  title: "ostigan"
+  title: "Bazorg"
   version: "1.0.0"
-
 components:
   securitySchemes:
     bearerAuth:
@@ -188,6 +187,13 @@ paths:
         - "Products"
       summary: "Get list of products"
       description: "Return list of products"
+      parameters:
+        - name: "page"
+          in: "query"
+          description: "page of the pagination"
+          schema:
+            type: integer
+            format: int64
       responses:
         '200':
           description: "Successful operation"

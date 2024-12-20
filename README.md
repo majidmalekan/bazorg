@@ -1,66 +1,148 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Dynamic Caching with Repository Pattern
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This project demonstrates how to implement a **Repository Pattern** with a **Read-Through Cache Strategy** in Laravel, enabling the dynamic selection of cache drivers (Redis, File, Database). The implementation ensures efficient data retrieval and caching, supporting scalable and maintainable code.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Repository Pattern**: Abstracts data access logic, ensuring clean architecture.
+- **Read-Through Cache Strategy**: Retrieves data from cache when available, falls back to the database otherwise, and caches the result for future use.
+- **Dynamic Cache Drivers**: Supports switching between Redis, File, and Database caching at runtime.
+- **Unit and Feature Tests**: Comprehensive test coverage to validate the caching behavior and repository logic.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Installation
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd <project-directory>
+   ```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+2. Run Docker on your os:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+2. Install Vendor:
+   ```bash
+    composer install
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. Start the development environment:
+   ```bash
+   ./vendor/bin/sail up -d
+   ```
 
-## Laravel Sponsors
+4. Configure the environment:
+    - Copy the `.env.example` file to `.env`:
+      ```bash
+      cp .env.example .env
+      ```
+    - Set up the database connection and other environment variables in the `.env` file.
+    - Configure the default cache driver in `.env` (e.g., `CACHE_DRIVER=redis`).
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+5. Run migrations:
+   ```bash
+   ./vendor/bin/sail artisan migrate
+   ```
 
-### Premium Partners
+6. Seed the database (optional):
+   ```bash
+   ./vendor/bin/sail artisan db:seed
+   ```
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Usage
 
-## Contributing
+### Repository Integration
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+The project uses a repository structure to abstract data access logic. Here's how to interact with the repositories:
 
-## Code of Conduct
+- **Fetching all records:**
+  ```php
+  $users = $userRepository->all();
+  ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **Fetching a specific record:**
+  ```php
+  $user = $userRepository->find($id);
+  ```
 
-## Security Vulnerabilities
+### Dynamic Cache Drivers
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Switch between cache drivers (Redis, File, Database) dynamically using the `CacheContext` service.
+
+#### Example:
+```php
+$cacheContext->useDriver('redis');
+$cacheContext->put('key', 'value', now()->addMinutes(10));
+$data = $cacheContext->get('key');
+```
+
+You can also switch the cache driver via an API endpoint:
+
+#### Endpoint:
+```http
+POST /change-cache-driver
+```
+
+#### Request Body:
+```json
+{
+  "driver": "redis" // or "file", "database"
+}
+```
+
+### Testing the System
+
+#### Run Unit and Feature Tests
+The tests ensure proper functionality of the caching system and repository logic.
+
+```bash
+./vendor/bin/sail artisan test
+```
+
+#### Test Coverage:
+- **Unit Tests**: Validate repository behavior with mocked caching.
+- **Feature Tests**: Validate the full flow with real cache interaction.
+
+---
+
+## Folder Structure
+
+### Key Directories and Files:
+
+- `app/Contracts/CacheStrategy.php`: Defines the interface for cache strategies.
+- `app/Services/Cache`: Contains the implementations for Redis, File, and Database caching.
+- `app/Services/Cache/CacheContext.php`: Manages dynamic cache driver switching.
+- `app/Repositories`: Contains the base repository and specific implementations (e.g., `UserRepository`).
+
+---
+
+## Customization
+
+### Adding a New Cache Driver
+To add a new caching strategy:
+
+1. Create a new class implementing `CacheStrategy`.
+2. Add the driver in the `CacheContext`'s `useDriver` method.
+
+### Adjusting Cache Expiry
+Modify the TTL (time-to-live) in the `remember` calls within the repository methods:
+```php
+$cacheKey = $this->getCacheKey('all');
+return $this->cache->remember($cacheKey, now()->addMinutes(15), function () {
+    return $this->model->all();
+});
+```
+
+---
+
+## Contribution
+
+Feel free to contribute to this project by submitting pull requests or reporting issues.
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is licensed under the MIT License.
