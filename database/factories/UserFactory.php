@@ -24,10 +24,10 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'Majid Malekan',
+            'name' => 'John Doe',
             'email' => 'test@example.com',
-            'phone' => 9363634297,
-            'password' => bcrypt('b13741374B!@#'),
+            'phone' => 9191234567,
+            'password' => bcrypt('123Bb!@#'),
         ];
     }
 }

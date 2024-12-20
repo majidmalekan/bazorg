@@ -63,7 +63,7 @@ class AuthController extends Controller
         try {
             $inputs = $request->validated();
             if (!$this->validateCredentials($inputs))
-                return failed('', 401);
+                return failed('your credentials is false', 401);
             $token = $this->createANewToken(auth()->user()->email, auth()->user());
             return success('', [
                 "access_token" => $token,
@@ -115,14 +115,5 @@ class AuthController extends Controller
     private function validateCredentials(array $inputs): bool
     {
         return Auth::attempt($inputs);
-    }
-
-    public function yamlConvert()
-    {
-        $yamlFilePath = resource_path('swagger/openapi.yaml');
-        $yaml = Yaml::parse(file_get_contents($yamlFilePath));
-        $json = json_encode($yaml, JSON_PRETTY_PRINT);
-        file_put_contents(storage_path('api-docs/api-docs.json'), $json);
-        return 'ok';
     }
 }
