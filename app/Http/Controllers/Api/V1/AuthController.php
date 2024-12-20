@@ -34,9 +34,8 @@ class AuthController extends Controller
      */
     public function register(RegisterRequest $request): JsonResponse
     {
-
         try {
-            $inputs = $request->only('emails');
+            $inputs = $request->only('email');
             $inputs["password"] = bcrypt($request->post('password'));
             $user = $this->service->create($inputs);
             $token = $this->createANewToken($request->post('email'), $user);
@@ -47,7 +46,7 @@ class AuthController extends Controller
 
             ]);
         } catch (\Exception $exception) {
-            throw new CommonException($exception);
+            throw new CommonException($exception->getMessage());
         }
 
     }

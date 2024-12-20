@@ -182,59 +182,6 @@
                 }
             }
         },
-        "\/api\/v1\/logout": {
-            "get": {
-                "operationId": "Logout",
-                "summary": "User Auth",
-                "tags": [
-                    "User Login"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "description": "Logout user",
-                "responses": {
-                    "201": {
-                        "description": "Logout successful",
-                        "content": {
-                            "application\/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "Logout successful",
-                        "content": {
-                            "application\/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "content": {
-                            "application\/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request"
-                    },
-                    "404": {
-                        "description": "Resource Not Found"
-                    }
-                }
-            }
-        },
         "\/api\/v1\/me": {
             "get": {
                 "operationId": "getUser",
@@ -518,43 +465,55 @@
                         "schema": {
                             "type": "string"
                         }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "multipart\/form-data": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "status": {
-                                        "type": "string",
-                                        "enum": [
-                                            "pending",
-                                            "approved",
-                                            "rejected"
-                                        ]
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    },
-                                    "sku": {
-                                        "type": "string"
-                                    },
-                                    "slug": {
-                                        "type": "string"
-                                    },
-                                    "sub_label": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "approved",
+                                "rejected"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "description",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sku",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sub_label",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "slug",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
                         }
                     }
-                },
+                ],
                 "responses": {
                     "201": {
                         "description": "update product Successfully"
