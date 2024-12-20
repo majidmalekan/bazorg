@@ -6,11 +6,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
-    Route::apiResource('product', ProductController::class);
+    Route::apiResource('product', ProductController::class)->only(['index', 'show']);
     Route::post('register', [AuthController::class, 'register']);
+    Route::get('yamlConvert', [AuthController::class, 'yamlConvert']);
     Route::post('login', [AuthController::class, 'login']);
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('me', [AuthController::class, 'me']);
         Route::apiResource('user', AuthController::class)->only(['update']);
+        Route::prefix('admin')->group(function () {
+            Route::apiResource('product', ProductController::class)->only(['update', 'store', 'destroy']);
+        });
     });
 });

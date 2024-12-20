@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Service\Cache\CacheContext;
 use App\Traits\CacheRepositoryTrait;
 use App\Traits\DBTransactionLockedTrait;
 use App\Traits\TableInformationTrait;
@@ -9,9 +10,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 class BaseRepository implements BaseEloquentRepositoryInterface
 {
@@ -22,15 +20,16 @@ class BaseRepository implements BaseEloquentRepositoryInterface
      */
 
     public Model $model;
+    public CacheContext $cache;
 
     /**
-     * @param $model
+     * @param Model $model
+     * @param CacheContext $cache
      */
-
-
-    public function __construct($model)
+    public function __construct(Model $model,CacheContext $cache)
     {
         $this->model = $model;
+        $this->cache = $cache;
     }
 
 
@@ -57,7 +56,7 @@ class BaseRepository implements BaseEloquentRepositoryInterface
      */
     public function find(int $id, array $whereAttributes = null): ?Model
     {
-        return Cache::remember($this->getTableName() . '_find_' . (auth('sanctum')->check() ? request()->user('sanctum')->id . $id : $id),
+        return $this->cache->remember($this->getTableName() . '_find_' . (auth('sanctum')->check() ? request()->user('sanctum')->id . $id : $id),
             (auth('sanctum')->check() ? env('CACHE_EXPIRE_TIME') : env('CACHE_EXPIRE_GENERAL_TIME')),
             function () use ($id, $whereAttributes) {
                 return $this->model
@@ -105,7 +104,7 @@ class BaseRepository implements BaseEloquentRepositoryInterface
     public function index(Request $request, int $perPage, array $whereAttributes = null): LengthAwarePaginator
     {
 
-        return Cache::remember($this->getTableName() . '_index_' . ($request->user() ? $request->user()->id : '') . $request->get('page', 1),
+        return $this->cache->remember($this->getTableName() . '_index_' . ($request->user() ? $request->user()->id : '') . $request->get('page', 1),
             (auth('sanctum')->check() ? env('CACHE_EXPIRE_TIME') : env('CACHE_EXPIRE_GENERAL_TIME')),
             function () use ($request, $perPage, $whereAttributes) {
                 return $this->model->query()
@@ -142,7 +141,7 @@ class BaseRepository implements BaseEloquentRepositoryInterface
      */
     public function getAll(string|int $queryParam = null, array $whereAttributes = null): array|Collection
     {
-        return Cache::remember($this->getTableName() . '_getAll',
+        return $this->cache->remember($this->getTableName() . '_getAll',
             (auth('sanctum')->check() ? env('CACHE_EXPIRE_TIME') : env('CACHE_EXPIRE_GENERAL_TIME')),
             function () use ($queryParam, $whereAttributes) {
                 return $this->model->query()
